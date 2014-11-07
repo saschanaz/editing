@@ -351,7 +351,7 @@
     <section>
     <h2>Default action for beforeInput</h2>
     <p>The default action of a given beforeinput event depends on the value of the intention property on the event. All of this can be prevented with preventDefault(). 
-    For all beforeInput events, if the location of targetRange is not Editable, abort these steps.
+    For all beforeInput events, if any part of targetRange is not Editable, abort these steps.
     <p>
     <p>The default action of a beforeInput event with intention="insertText" shall be as follows:
     <ol><li>If targetRange is not collapsed, abort these steps
@@ -365,12 +365,21 @@
     </li><li>Wrap the beforeNode and afterNode in the tag given by data
     </li><li>NEED ALGORITHM to simplify nodes for both beforeNode and afterNode
     </li></ol>
-    </p><p>The default action of a beforeInput event with intention="delete" shall be as follows:
-    <ol><li>NEED ALGORITHM to split nodes
-    </li><li>Remove the contents of targetRange from the document
-    </li><li>NEED ALGORITHM to merge nodes
+    </p>
+    <section>
+    <h2>intention="delete"</h2>
+    <p>The default action of a beforeInput event with intention="delete" shall be as follows. The image below shows one possible scenario for this intention.<div><img src="images\inputEvents\Intial_State.png" style="width:600px"></div>
+    <ol><li>If the Node referenced by targetRange.startContainer is a TextNode and targetRange.startOffset is greater than 0, call targetRange.startContainer.splitText(targetRange.startOffset).
+    </li><li>If the Node referenced by targetRange.endContainer is a TextNode and targetRange.endOffset is less than targetRange.endContainer.length-1, call targetRange.endContainer.splitText(targetRange.endOffset).
+    </li><li>Remove all TextNodes that are contained by targetRange from the document<div><img src="images\inputEvents\TextNodes_Gone.png" style="width:600px"></div>
+    </li><li>Remove all Nodes from the document that are wholly contained by targetRange<div><img src="images\inputEvents\Middle_Blocks_Gone.png" style="width:600px"></div>
+    </li><li>The content of targetRange should now be in ET*BT* format.
+    </li><li>Run the Merge Blocks algorithm<div><img src="images\inputEvents\Blocks_Merged.png" style="width:600px"></div>
+    </li><li>run targetRange.collapse(true)<div><img src="images\inputEvents\Selection_Collapsed.png" style="width:600px"></div>
     </li></ol>
-    </p><p>The default action of a beforeInput event with intention="format" is unspecified
+    </p>
+    </section>
+    <p>The default action of a beforeInput event with intention="format" is unspecified
     </p><p>The default action of a beforeInput event with intention="undo" or "redo" shall be as follows. 
     Note that this may not be completely interoperable in the size of the undo unit.
     However, browsers must reset to a state that previously existed in the document, and X undo operations
@@ -378,9 +387,43 @@
     <ol><li>Undo or redo as appropriate based on the browser's undo stack.
     </li></ol>
     </p>
+    <section>
+    <h2>Helper Algorithms and Definitions</h2>
+    <section>
+    <h2>ET*BT*</h2>
+        This is a convenient way to describe a recurring markup shape. It is a regular expression, with zero or more End Tags followed by zero or more Begin Tags in HTML. For instance, &lt;/span&gt;&lt;/div&gt;&lt;p&gt;
     </section>
     <section>
+    <h2>Mergeable</h2>
+        Two elements are mergable if they meet the following requirements:
+        <ol><li>
+        </li><li>Neither of them has any of the following tags: "a", WHAT ELSE??
+        </li><li>They have the same value for style.display
+        </li><li>TODO: WHAT ELSE??
+        </li></ol>
+    </section>
+    <section>
+        <h2>Merge Blocks</h2>
+        Given a series of tags in ET*BT*, execute the following steps:
+        <div><img src="images\inputEvents\ETBT.png" style="width:600px"></div>
+        <ol><li>Let ET0 be the right-most End Tag, and ETi be the End Tag i places left of ET0
+        </li><li>Let BT0 be the left-most Begin Tag, and BTi be the Begin Tag i places right of ET0
+        </li><li>Let i = 0
+        </li><li>If ETi does not exist or BTi does not exist, abort these steps
+        </li><li>If ETi is Mergeable with BTi, place all of the contents of BTi into ETi, after it's current contents
+        </li><li>Remove BTi from the document
+        </li><li>Recur at step 4 with i++
+        </li></ol>
+        Now the picture will look like this:
+        <div><img src="images\inputEvents\ETBT_After.png" style="width:600px"></div>
+    </section>
+    </section>
+    </section>
+    
+    <section>
       <h2>Acknowledgements</h2>
+      Thanks to Travis Leithead, Gary Kacmarcik, and the other folks that worked on this in DOM L3 Events.<br>
+      Thanks to Eugene Veselov for help with the algorithms.
     </section>
   </body>
 </html>
