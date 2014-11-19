@@ -52,20 +52,18 @@
                 targetRange.setEndBefore(targetRange.endContainer.splitText(targetRange.endOffset));
             }
             //Remove all Nodes that are wholly contained
-            var commonAncestor = targetRange.commonAncestorContainer;
-            var startNode = targetRange.startContainer;
-            var endNode = targetRange.endContainer;
             function removeNode(node, bBeforeStart)
             {   
                 if (node)
                 {
                     if (bBeforeStart)
                     {
-                        if (node === startNode)
+                        if (node === targetRange.startContainer)
                         {
                             // start node is hanlded below
                             removeNode(node.nextSibling, false);
-                        } else if (node.contains(startNode)) {
+                            removeNode(node.childNodes[targetRange.startOffset], true);
+                        } else if (node.contains(targetRange.startContainer)) {
                             removeNode(node.nextSibling, false);
                             removeNode(node.childNodes[0], true);
                         } else {
@@ -73,22 +71,28 @@
                             removeNode(node.nextSibling, true);
                         }
                     } else {
-                        if (node === endNode)
+                        if (node === targetRange.endContainer)
                         {
                             // end node is hanlded below
-                        } else if (node.contains(endNode)) {
+                        } else if (node.contains(targetRange.endContainer)) {
                             removeNode(node.childNodes[0], false);
                         } else {
                             // boom
+                            var nextSibling = node.nextSibling;
                             node.parentNode.removeChild(node);
-                            removeNode(node.nextSibling, false);
+                            removeNode(nextSibling, false);
                         }
                     }
                 }
             }
             //Remove all fully contained nodes besides the startContainer and endContainer
-            removeNode(commonAncestor.childNodes[0], true);
-            //Remove the startContainer and endContainer
+            if (targetRange.commonAncestorContainer === targetRange.startContainer)
+            {
+                removeNode(targetRange.commonAncestorContainer.childNodes[targetRange.startOffset], false);
+            } else {
+                removeNode(targetRange.commonAncestorContainer.childNodes[0], true);
+            }
+            //Remove the nodes in the startContainer and endContainer
             if (targetRange.startContainer === targetRange.endContainer)
             {
                 for (var i = targetRange.startOffset; i < targetRange.endOffset;) {
