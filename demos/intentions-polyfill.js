@@ -86,14 +86,16 @@
                     }
                 }
             }
+            //Remove all fully contained nodes besides the startContainer and endContainer
             removeNode(commonAncestor.childNodes[0], true);
+            //Remove the startContainer and endContainer
             if (targetRange.startContainer === targetRange.endContainer)
             {
-                for (var i = targetRange.startOffset; i < targetRange.endOffset; i++) {
+                for (var i = targetRange.startOffset; i < targetRange.endOffset;) {
                     targetRange.startContainer.removeChild(targetRange.startContainer.childNodes[i]);
                 }
             } else {
-                for (var j = targetRange.startOffset; j < targetRange.startContainer.childNodes.length; j++) {
+                for (var j = targetRange.startOffset; j < targetRange.startContainer.childNodes.length;) {
                     if (targetRange.startContainer.childNodes[j].contains(targetRange.endContainer))
                     {
                         break;
