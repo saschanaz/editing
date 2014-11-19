@@ -60,11 +60,21 @@
                     {
                         if (node === targetRange.startContainer)
                         {
-                            // start node is hanlded below
-                            removeNode(node.nextSibling, false);
-                            removeNode(node.childNodes[targetRange.startOffset], true);
+                            // start node itself is hanlded outside of removeNode
+                            if (!(node.contains(targetRange.endContainer)) && 
+                                !(node.parentNode === targetRange.endContainer && 
+                                    targetRange.endContainer.childNodes[targetRange.endOffset - 1] === node))
+                            {
+                                removeNode(node.nextSibling, false);
+                            }
+                            removeNode(node.childNodes[targetRange.startOffset], false);
                         } else if (node.contains(targetRange.startContainer)) {
-                            removeNode(node.nextSibling, false);
+                            if (!node.contains(targetRange.endContainer) &&
+                                !(node.parentNode === targetRange.endContainer && 
+                                    targetRange.endContainer.childNodes[targetRange.endOffset - 1] === node))
+                            {
+                                removeNode(node.nextSibling, false);
+                            }
                             removeNode(node.childNodes[0], true);
                         } else {
                             // iterate until start found
@@ -73,25 +83,23 @@
                     } else {
                         if (node === targetRange.endContainer)
                         {
-                            // end node is hanlded below
+                            // end node itself is hanlded outside of removeNode
                         } else if (node.contains(targetRange.endContainer)) {
                             removeNode(node.childNodes[0], false);
                         } else {
                             // boom
-                            var nextSibling = node.nextSibling;
+                            if (!(node.parentNode === targetRange.endContainer && 
+                                    targetRange.endContainer.childNodes[targetRange.endOffset - 1] === node))
+                            {                           
+                                removeNode(node.nextSibling, false);
+                            }                            
                             node.parentNode.removeChild(node);
-                            removeNode(nextSibling, false);
                         }
                     }
                 }
             }
             //Remove all fully contained nodes besides the startContainer and endContainer
-            if (targetRange.commonAncestorContainer === targetRange.startContainer)
-            {
-                removeNode(targetRange.commonAncestorContainer.childNodes[targetRange.startOffset], false);
-            } else {
-                removeNode(targetRange.commonAncestorContainer.childNodes[0], true);
-            }
+            removeNode(targetRange.commonAncestorContainer, true);
             //Remove the nodes in the startContainer and endContainer
             if (targetRange.startContainer === targetRange.endContainer)
             {
