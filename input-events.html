@@ -396,9 +396,11 @@
     <section>
     <h2>Mergeable</h2>
         Two elements are mergable if they meet the following requirements:
-        <ol><li>
-        </li><li>Neither of them has any of the following tags: "a", WHAT ELSE??
-        </li><li>They have the same value for style.display
+        <ol><li>Neither of them has any of the following tags: "a", "hr", WHAT ELSE??
+        </li><li>They have the same value for computedStyle.display
+        </li><li>The following special cases are satisfied:
+        <ol><li>If either of them is a list, they must both be lists. They do not need to be the same type of list.
+        </li></ol>
         </li><li>TODO: WHAT ELSE??
         </li></ol>
     </section>
