@@ -124,15 +124,27 @@
                 relevantAncestorsOfEnd.push(currentParentOfEnd);
                 currentParentOfEnd = currentParentOfEnd.parentNode;
             }
+            function areBlockMergeable(block1, block2)
+            {
+                var retVal = true;
+                if (getComputedStyle(block1).display != getComputedStyle(block2).display)
+                {
+                    retVal = false;
+                }
+                return retVal;
+            }
             while ((currentParentOfStart = relevantAncestorsOfStart.pop()) && (currentParentOfEnd = relevantAncestorsOfEnd.pop()))
             {
-                for (var i = 0; i < currentParentOfEnd.childNodes.length; i++)
+                if (areBlockMergeable(currentParentOfStart, currentParentOfEnd))
                 {
-                    var currentChild = currentParentOfEnd.childNodes[i];
-                    currentParentOfEnd.removeChild(currentChild);
-                    currentParentOfStart.appendChild(currentChild);
+                    for (var i = 0; i < currentParentOfEnd.childNodes.length; i++)
+                    {
+                        var currentChild = currentParentOfEnd.childNodes[i];
+                        currentParentOfEnd.removeChild(currentChild);
+                        currentParentOfStart.appendChild(currentChild);
+                    }
+                    currentParentOfEnd.parentElement.removeChild(currentParentOfEnd);
                 }
-                currentParentOfEnd.parentElement.removeChild(currentParentOfEnd);
             }
             //Collapse to start
             targetRange.collapse(true);
