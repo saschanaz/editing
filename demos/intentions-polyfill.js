@@ -51,7 +51,7 @@
             {
                 targetRange.setEndBefore(targetRange.endContainer.splitText(targetRange.endOffset));
             }
-            
+            //Remove all Nodes that are wholly contained
             var commonAncestor = targetRange.commonAncestorContainer;
             var startNode = targetRange.startContainer;
             var endNode = targetRange.endContainer;
@@ -63,7 +63,7 @@
                     {
                         if (node === startNode)
                         {
-                            // Hanlded below
+                            // start node is hanlded below
                             removeNode(node.nextSibling, false);
                         } else if (node.contains(startNode)) {
                             removeNode(node.nextSibling, false);
@@ -75,7 +75,7 @@
                     } else {
                         if (node === endNode)
                         {
-                            // Hanlded below
+                            // end node is hanlded below
                         } else if (node.contains(endNode)) {
                             removeNode(node.childNodes[0], false);
                         } else {
@@ -87,7 +87,6 @@
                 }
             }
             removeNode(commonAncestor.childNodes[0], true);
-            var endHanlded = false;
             if (targetRange.startContainer === targetRange.endContainer)
             {
                 for (var i = targetRange.startOffset; i < targetRange.endOffset; i++) {
@@ -108,7 +107,37 @@
                     } 
                     targetRange.endContainer.removeChild(targetRange.endContainer.childNodes[k]);
                 }
-            }            
+            }      
+            
+            //Run Merge Blocks
+            var currentParentOfStart = targetRange.startContainer;
+            var relevantAncestorsOfStart =  [];
+            var relevantAncestorsOfEnd =  [];
+            while (currentParentOfStart != targetRange.commonAncestorContainer)
+            {
+                relevantAncestorsOfStart.push(currentParentOfStart);
+                currentParentOfStart = currentParentOfStart.parentNode;
+            }
+            var currentParentOfEnd = targetRange.endContainer;
+            while (currentParentOfEnd != targetRange.commonAncestorContainer)
+            {
+                relevantAncestorsOfEnd.push(currentParentOfEnd);
+                currentParentOfEnd = currentParentOfEnd.parentNode;
+            }
+            while ((currentParentOfStart = relevantAncestorsOfStart.pop()) && (currentParentOfEnd = relevantAncestorsOfEnd.pop()))
+            {
+                for (var i = 0; i < currentParentOfEnd.childNodes.length; i++)
+                {
+                    var currentChild = currentParentOfEnd.childNodes[i];
+                    currentParentOfEnd.removeChild(currentChild);
+                    currentParentOfStart.appendChild(currentChild);
+                }
+                currentParentOfEnd.parentElement.removeChild(currentParentOfEnd);
+            }
+            //Collapse to start
+            targetRange.collapse(true);
+            document.getSelection().removeAllRanges();
+            document.getSelection().addRange(targetRange);
             break;
         }
         return retVal;

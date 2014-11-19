@@ -371,11 +371,10 @@
     <p>The default action of a beforeInput event with intention="delete" shall be as follows. The image below shows one possible scenario for this intention.<div><img src="images\inputEvents\Intial_State.png" style="width:600px"></div>
     <ol><li>If the Node referenced by targetRange.startContainer is a TextNode and targetRange.startOffset is greater than 0, call targetRange.startContainer.splitText(targetRange.startOffset).
     </li><li>If the Node referenced by targetRange.endContainer is a TextNode and targetRange.endOffset is less than targetRange.endContainer.length-1, call targetRange.endContainer.splitText(targetRange.endOffset).
-    </li><li>Remove all TextNodes that are contained by targetRange from the document<div><img src="images\inputEvents\TextNodes_Gone.png" style="width:600px"></div>
     </li><li>Remove all Nodes from the document that are wholly contained by targetRange<div><img src="images\inputEvents\Middle_Blocks_Gone.png" style="width:600px"></div>
     </li><li>The content of targetRange should now be in ET*BT* format.
     </li><li>Run the Merge Blocks algorithm<div><img src="images\inputEvents\Blocks_Merged.png" style="width:600px"></div>
-    </li><li>run targetRange.collapse(true)<div><img src="images\inputEvents\Selection_Collapsed.png" style="width:600px"></div>
+    </li><li>Run targetRange.collapse(true)<div><img src="images\inputEvents\Selection_Collapsed.png" style="width:600px"></div>
     </li></ol>
     </p>
     </section>
