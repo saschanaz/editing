@@ -26,8 +26,11 @@
         var intentionEvent;
         var intention = intentionDetails[0];
         var eventType = intentionDetails[3];
-        switch (eventType)
+        switch (intention)
         {
+        case "delete":
+            intentionEvent = new CustomEvent(eventType, {"cancelable":true, "detail":{"intention":intention, "targetRange":getDeleteTargetRange()}});
+            break;
         default:
             intentionEvent = new CustomEvent(eventType, {"cancelable":true, "detail":{"intention":intention}});
         }
@@ -40,7 +43,20 @@
         switch (intention) {
         case "delete":
             retVal = true;
-            var targetRange = document.getSelection().getRangeAt(0);
+            var targetRange = getDeleteTargetRange();
+            handleDelete(targetRange);
+            break;
+        }
+        return retVal;
+    };
+    
+    function getDeleteTargetRange() {
+        return document.getSelection().getRangeAt(0);
+    }
+    
+    function handleDelete(targetRange) {
+        if (!targetRange.collapsed)
+        {
             //Normalize text startContainer
             if (targetRange.startContainer.nodeName == "#text")
             {
@@ -58,34 +74,28 @@
                 {
                     if (bBeforeStart)
                     {
-                        if (node === targetRange.startContainer)
-                        {
-                            // start node itself is hanlded outside of removeNode
-                            if (!(node.contains(targetRange.endContainer)) && 
-                                !(node.parentNode === targetRange.endContainer && 
-                                    targetRange.endContainer.childNodes[targetRange.endOffset - 1] === node))
-                            {
-                                removeNode(node.nextSibling, false);
-                            }
-                            removeNode(node.childNodes[targetRange.startOffset], false);
-                        } else if (node.contains(targetRange.startContainer)) {
+                        if (node.contains(targetRange.startContainer)) {
                             if (!node.contains(targetRange.endContainer) &&
                                 !(node.parentNode === targetRange.endContainer && 
                                     targetRange.endContainer.childNodes[targetRange.endOffset - 1] === node))
                             {
                                 removeNode(node.nextSibling, false);
                             }
-                            removeNode(node.childNodes[0], true);
+                            if (node === targetRange.startContainer) {
+                                removeNode(node.childNodes[targetRange.startOffset], false);
+                            } else {
+                                removeNode(node.childNodes[0], true);
+                            }
                         } else {
                             // iterate until start found
                             removeNode(node.nextSibling, true);
                         }
                     } else {
-                        if (node === targetRange.endContainer)
-                        {
-                            // end node itself is hanlded outside of removeNode
-                        } else if (node.contains(targetRange.endContainer)) {
-                            removeNode(node.childNodes[0], false);
+                        if (node.contains(targetRange.endContainer)) {
+                            if (node !== targetRange.endContainer) 
+                            {
+                                removeNode(node.childNodes[0], false);
+                            }
                         } else {
                             // boom
                             if (!(node.parentNode === targetRange.endContainer && 
@@ -164,10 +174,8 @@
             targetRange.collapse(true);
             document.getSelection().removeAllRanges();
             document.getSelection().addRange(targetRange);
-            break;
         }
-        return retVal;
-    };
+    }
     
     if (Object.defineProperty && CustomEvent && CustomEvent.prototype) {
         Object.defineProperty(CustomEvent.prototype, "intention",    

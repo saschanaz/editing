@@ -11,8 +11,18 @@
             //editArea.addEventListener("focus", function(){editArea.innerHTML = "<br>";});
         }
         function logIntentionEvent(evt){
-            document.getElementById("log").textContent += "event : { type : \"" + evt.type + "\", intention : \"" + evt.intention + "\"}\n";
+            var msg;
+            switch (evt.intention) {
+            case "delete":
+                msg = "event : { type : \"" + evt.type + "\", intention : \"" + evt.intention + "\", targetRange : \"" + evt.detail.targetRange + "\"}\n";
+                break;
+            default: 
+                msg = "event : { type : \"" + evt.type + "\", intention : \"" + evt.intention + "\"}\n";
+            }
+            document.getElementById("log").textContent += msg;
             document.getElementById("log").scrollTop = 99999;
+            
+            
         }
     </script>
 </head>
