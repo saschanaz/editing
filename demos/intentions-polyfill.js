@@ -215,6 +215,24 @@
                             }
                         }
                     });
+                document.testIntention = 
+                    function(intention)
+                    {
+                        for (var i = 0; i < supportedIntentions.length; i++)
+                        {
+                            if (supportedIntentions[i][0] == intention)
+                            {
+                                var cancelled = !fireIntentionEvent(supportedIntentions[i]);
+                                if (cancelled)
+                                {
+                                    evt.preventDefault(); // Prevent browser default behavior for this Action event
+                                } else if(handleDefaultsInScript && handleIntention(supportedIntentions[i])) {
+                                    evt.preventDefault(); // Prevent browser default if this was handled by script above
+                                }
+                                break;
+                            }
+                        } 
+                    }
                 var ceElement = document.querySelector('[contenteditable]');
                 var ceAttribute = ceElement.getAttribute("contenteditable");
                 if (ceAttribute.indexOf('typing') >= 0) 
